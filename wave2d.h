@@ -16,6 +16,7 @@ class Wave2d{
 		virtual double u_initial(double & x, double & y) = 0;
 
 		void createCustomInitial();
+		void createDefaultInitial();
 
 		void plot();
 
@@ -27,15 +28,16 @@ class Wave2d{
 		void iterate(size_t it);       //Iterates the system through time
 		void iterateForSeconds(double seconds);
 	private:
-		void fill_XY();	
-		double alpha(size_t i, size_t j);
-		double beta_x(size_t i; size_t j);
-		double beta_y(size_t i; size_t j);
+		void fill_xy();	
+		void fill_alpha_beta();
+		double calc_alpha(size_t i, size_t j);
+		double calc_beta_x(size_t i; size_t j);
+		double calc_beta_y(size_t i; size_t j);
 
 		//SYSTEM PARAMETERS
 		double L;   //size of system
-		double c; //wave velocity
-		double tau; //characteristic time scale, tau=L/c
+		double c_0; //wave velocity
+		double tau; //characteristic time scale, tau=L/c_0
 
 		Gnuplotting gplt;
 
@@ -46,7 +48,11 @@ class Wave2d{
 		size_t N;   //Number of spatial points in [0,1]
 		double h;   //x=ih, i=0,....N-1, y=jh, j=0;....N-1
 		double dt;  //timestep
-		double r;   //r=(dt/dx)^2
+		double r;   //r=(dt/h)^2
+
+		mat alpha;   //arma::matrix containing alpha(x,y) values
+		mat beta_x;  //arma::matrix containing beta_y(x,y) values
+		mat beta_y;  //arma::matrix containing beta_x(x,y) values
 
 		vec x;  //arma::vector containing all x positions
 		vec y;  //arma::vector containing all y positions
