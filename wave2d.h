@@ -24,6 +24,8 @@ class Wave2d{
 		void print_x();
 		void print_y();
 
+		Gnuplotting gplt;
+
 		void plot();
 
 		void initialize();    //Initializes matrices and vectors 
@@ -44,7 +46,6 @@ class Wave2d{
 		double c_0; //wave velocity
 		double tau; //characteristic time scale, tau=L/c_0
 
-		Gnuplotting gplt;
 
 		bool isAtInitial;
 

@@ -9,11 +9,11 @@ Wave2d::Wave2d(){
 	c_0 = 1.0;
 	tau = L/c_0;
 	t = 0.0;
-	N = 200;
+	N = 100;
 	//dt = 0.0001;
 	h = 1.0/((double) (N-1));
 	//r = (dt*dt)/(h*h);
-	r = 0.3;
+	r = 0.1;
 	dt = sqrt(r*h*h);
 
 	x = zeros<vec>(N);
@@ -25,10 +25,6 @@ Wave2d::Wave2d(){
 	beta_y = zeros<mat>(N,N);
 	fill_xy();
 	createDefaultInitial();
-	gplt.cmd("set zrange [-0.4:4]");
-	gplt.cmd("set view 36,56");
-	gplt.cmd("set pm3d");
-	gplt.cmd("set palette defined (-1 'blue', 1 'red')");
 }
 
 Wave2d::~Wave2d(){
@@ -47,7 +43,10 @@ void Wave2d::createCustomInitial(){
 void Wave2d::createDefaultInitial(){
 	for(size_t i = 1; i<(N-1); i++){
 		for(size_t j = 1; j<(N-1); j++){
-			u(i,j) = exp(-1000.0*((x(i)-0.5)*(x(i)-0.5) + (y(j)-0.5)*(y(j)-0.5)));
+			//u(i,j) = exp(-1000.0*((x(i)-0.5)*(x(i)-0.5) + (y(j)-0.5)*(y(j)-0.5)));
+			if(y(j) < 0.3){
+				u(i,j) = sin(M_PI*x(i))*sin(M_PI*y(j)/0.3);
+			}
 		}
 	}
 }
@@ -107,7 +106,7 @@ void Wave2d::print_y(){
 
 //PLOTTING
 void Wave2d::plot(){
-	gplt.xyzstream(N,x,y,u);
+	gplt.heatmap(N,N,u);
 }
 
 void Wave2d::initialize(){

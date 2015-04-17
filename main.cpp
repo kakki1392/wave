@@ -8,7 +8,16 @@ using namespace std;
 int  main(){
 	ConstantWave test;
 	test.initialize();
-	test.plot();
+	test.gplt.cmd("reset");
+	test.gplt.cmd("set pm3d map");
+	test.gplt.cmd("set cbrange [-1:1]");
+	test.gplt.cmd("set palette gray");
+	for(int i=0; i<1000; i++){
+		test.ezIterate(1);
+		test.plot();
+		usleep(1e5);
+	}
+
 	/*
 	test.print_x();
 	test.print_y();
@@ -16,12 +25,6 @@ int  main(){
 	test.print_beta_x();
 	test.print_beta_y();
 	*/
-	
-	for(size_t i=0; i<200; i++){
-		test.ezIterate(2);
-		test.plot();
-		usleep(1e5);
-	}
 
 
 

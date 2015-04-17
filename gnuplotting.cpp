@@ -122,6 +122,22 @@ void Gnuplotting::xystream_replot(size_t & N, arma::vec & x, arma::vec & y, cons
 	cmd("e");
 }
 
+void Gnuplotting::heatmap(size_t & Nx, size_t & Ny, arma::mat & z){
+	cmd("splot '-' matrix");
+	for(size_t i=0; i<Nx; i++){
+		stringstream ss;
+		for(size_t j=0; j<(Ny-1); j++){
+			ss << z(i,j) << " ";
+		}
+		ss << z(i,Ny-1);
+		string str = ss.str();
+		cmd(str);
+	}
+	cmd("e");
+	cmd("e");
+}
+	
+
 void Gnuplotting::two_xystream(size_t &N1, vec &x1, vec &y1, const char* title1, size_t &N2, vec &x2, vec &y2, const char* title2){
 	stringstream s;
 	s << "plot '-' t '" << title1 << "' w lines, '-' t '" << title2 << "' w lines"; 
