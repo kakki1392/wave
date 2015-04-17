@@ -23,6 +23,8 @@ class Wave2d{
 		void print_beta_y();
 		void print_x();
 		void print_y();
+		void print_u();
+		void print_u_previous();
 
 		Gnuplotting gplt;
 
@@ -33,7 +35,10 @@ class Wave2d{
 		void ezIterate_single();
 		void ezIterate(size_t it);
 		void iterate_single();
-		void iterateForSeconds(double seconds);
+
+		void iterate_test_single();
+		void iterate_test(size_t it);
+
 	private:
 		void fill_xy();	
 		void fill_alpha_beta();

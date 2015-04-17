@@ -1,4 +1,6 @@
 #include "wave2d.h"
+#include <armadillo>
+#include <iostream>
 #include "gnuplotting.h"
 #include <unistd.h>
 
@@ -6,35 +8,27 @@ using namespace arma;
 using namespace std;
 
 int  main(){
-	ConstantWave test;
-	test.initialize();
-	test.gplt.cmd("reset");
-	test.gplt.cmd("set pm3d map");
-	test.gplt.cmd("set cbrange [-1:1]");
-	test.gplt.cmd("set palette gray");
-	for(int i=0; i<1000; i++){
-		test.ezIterate(1);
-		test.plot();
-		usleep(1e5);
-	}
+	cout.precision(11);
+	cout.setf(ios::fixed);
+	ConstantWave A,B;
+	A.initialize();
+	B.initialize();
+	
+	wall_clock timer;
+	timer.tic();
+	A.ezIterate(10000000);
+	cout << "ez: " << timer.toc() << endl;
+	timer.tic();
+	B.iterate_test(10000000);
+	cout << "test: " << timer.toc() << endl;
 
-	/*
-	test.print_x();
-	test.print_y();
-	test.print_alpha();
-	test.print_beta_x();
-	test.print_beta_y();
-	*/
-
-
-
-
-
-
-
-
-
-
+	A.print_alpha();
+	A.print_beta_x();
+	A.print_beta_y();
+	A.print_u();
+	A.print_u_previous();
+	B.print_u();
+	B.print_u_previous();
 
 
 

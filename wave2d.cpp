@@ -9,7 +9,7 @@ Wave2d::Wave2d(){
 	c_0 = 1.0;
 	tau = L/c_0;
 	t = 0.0;
-	N = 100;
+	N = 6;
 	//dt = 0.0001;
 	h = 1.0/((double) (N-1));
 	//r = (dt*dt)/(h*h);
@@ -104,6 +104,14 @@ void Wave2d::print_y(){
 	y.print("y");
 }
 
+void Wave2d::print_u(){
+	u.raw_print("u");
+}
+
+void Wave2d::print_u_previous(){
+	u_previous.raw_print("u_previous");
+}
+
 //PLOTTING
 void Wave2d::plot(){
 	gplt.heatmap(N,N,u);
@@ -132,10 +140,10 @@ void Wave2d::iterate_single(){
 		double a_UL = alpha(1,N-2);
 		double a_UR = alpha(N-2,N-2);
 		
-		unew(1,1) = 0.5*((a_LL+beta_x(1,1))*u(2,1) + (a_LL+beta_y(1,1))*u(1,2) + (2.0+4.0*a_LL)*u(1,1));
-		unew(N-2,1) = 0.5*((a_LR-beta_x(N-2,1))*u(N-3,1) + (a_LR+beta_y(N-2,1))*u(N-2,2) + (2.0+4.0*a_LR)*u(N-2,1));
-		unew(1,N-2) = 0.5*((a_UL+beta_x(1,N-2))*u(2,N-2) + (a_UL-beta_y(1,N-2))*u(1,N-3) + (2.0+4.0*a_UL)*u(1,N-2));
-		unew(N-2,N-2) = 0.5*((a_UR-beta_x(N-2,N-2))*u(N-3,N-2) + (a_UR-beta_y(N-2,N-2))*u(N-2,N-3) + (2.0+4.0*a_UR)*u(N-2,N-2));
+		unew(1,1) = 0.5*((a_LL+beta_x(1,1))*u(2,1) + (a_LL+beta_y(1,1))*u(1,2) + (2.0-4.0*a_LL)*u(1,1));
+		unew(N-2,1) = 0.5*((a_LR-beta_x(N-2,1))*u(N-3,1) + (a_LR+beta_y(N-2,1))*u(N-2,2) + (2.0-4.0*a_LR)*u(N-2,1));
+		unew(1,N-2) = 0.5*((a_UL+beta_x(1,N-2))*u(2,N-2) + (a_UL-beta_y(1,N-2))*u(1,N-3) + (2.0-4.0*a_UL)*u(1,N-2));
+		unew(N-2,N-2) = 0.5*((a_UR-beta_x(N-2,N-2))*u(N-3,N-2) + (a_UR-beta_y(N-2,N-2))*u(N-2,N-3) + (2.0-4.0*a_UR)*u(N-2,N-2));
 
 		//Do boundaries
 		for(size_t k = 2; k<(N-2); k++){
@@ -159,7 +167,7 @@ void Wave2d::iterate_single(){
 				double a = alpha(i,j);
 				double b_x = beta_x(i,j);
 				double b_y = beta_x(i,j);
-				unew(i,j) = 0.5*((a+b_x)*u(i+1,j)+(a-b_x)*u(i-1,j)+(a+b_y)*unew(i,j+1)+(a-b_y)*u(i,j-1)+(2.0+4.0*a)*u(i,j));
+				unew(i,j) = 0.5*((a+b_x)*u(i+1,j)+(a-b_x)*u(i-1,j)+(a+b_y)*unew(i,j+1)+(a-b_y)*u(i,j-1)+(2.0-4.0*a)*u(i,j));
 			}
 		}
 		u_previous = u;
@@ -167,14 +175,14 @@ void Wave2d::iterate_single(){
 	}else{
 		//Do corners
 		double a_LL = alpha(1,1);
-		double a_LR = alpha(N-1,1);
-		double a_UL = alpha(1,N-1);
-		double a_UR = alpha(N-1,N-1);
+		double a_LR = alpha(N-2,1);
+		double a_UL = alpha(1,N-2);
+		double a_UR = alpha(N-2,N-2);
 		
-		unew(1,1) = (a_LL+beta_x(1,1))*u(2,1) + (a_LL+beta_y(1,1))*u(1,2) + (2.0+4.0*a_LL)*u(1,1);
-		unew(N-2,1) = (a_LR-beta_x(N-2,1))*u(N-3,1) + (a_LR+beta_y(N-2,1))*u(N-2,2) + (2.0+4.0*a_LR)*u(N-2,1);
-		unew(1,N-2) = (a_UL+beta_x(1,N-2))*u(2,N-2) + (a_UL-beta_y(1,N-2))*u(1,N-3) + (2.0+4.0*a_UL)*u(1,N-2);
-		unew(N-2,N-2) = (a_UR-beta_x(N-2,N-2))*u(N-3,N-2) + (a_UR-beta_y(N-2,N-2))*u(N-2,N-3) + (2.0+4.0*a_UR)*u(N-2,N-2);
+		unew(1,1) = (a_LL+beta_x(1,1))*u(2,1) + (a_LL+beta_y(1,1))*u(1,2) + (2.0-4.0*a_LL)*u(1,1);
+		unew(N-2,1) = (a_LR-beta_x(N-2,1))*u(N-3,1) + (a_LR+beta_y(N-2,1))*u(N-2,2) + (2.0-4.0*a_LR)*u(N-2,1);
+		unew(1,N-2) = (a_UL+beta_x(1,N-2))*u(2,N-2) + (a_UL-beta_y(1,N-2))*u(1,N-3) + (2.0-4.0*a_UL)*u(1,N-2);
+		unew(N-2,N-2) = (a_UR-beta_x(N-2,N-2))*u(N-3,N-2) + (a_UR-beta_y(N-2,N-2))*u(N-2,N-3) + (2.0-4.0*a_UR)*u(N-2,N-2);
 
 		//Do boundaries
 		for(size_t k = 2; k<(N-2); k++){
@@ -198,7 +206,7 @@ void Wave2d::iterate_single(){
 				double a = alpha(i,j);
 				double b_x = beta_x(i,j);
 				double b_y = beta_x(i,j);
-				unew(i,j) = (a+b_x)*u(i+1,j)+(a-b_x)*u(i-1,j)+(a+b_y)*unew(i,j+1)+(a-b_y)*u(i,j-1)+(2.0+4.0*a)*u(i,j);
+				unew(i,j) = (a+b_x)*u(i+1,j)+(a-b_x)*u(i-1,j)+(a+b_y)*unew(i,j+1)+(a-b_y)*u(i,j-1)+(2.0-4.0*a)*u(i,j);
 			}
 		}
 		unew = unew - u_previous;
@@ -216,7 +224,7 @@ void Wave2d::ezIterate_single(){
 				unew(i,j) = 0.5*r*(u(i+1,j)+u(i-1,j)+u(i,j+1)+u(i,j-1));
 			}
 		}
-		unew = unew - (1.0-2.0*r)*u;
+		unew = unew + (1.0-2.0*r)*u;
 		u_previous = u;
 		u = unew;
 	}else{
@@ -225,7 +233,7 @@ void Wave2d::ezIterate_single(){
 				unew(i,j) = r*(u(i+1,j)+u(i-1,j)+u(i,j+1)+u(i,j-1));
 			}
 		}
-		unew = unew - u_previous - (2.0-4.0*r)*u;
+		unew = unew - u_previous + (2.0-4.0*r)*u;
 		u_previous = u;
 		u = unew;
 	}
@@ -238,7 +246,42 @@ void Wave2d::ezIterate(size_t it){
 	}
 }
 
+void Wave2d::iterate_test_single(){
+	mat unew = zeros<mat>(N,N);
+	if(isAtInitial){
+		isAtInitial = false;
+		for(size_t i=1; i<(N-1); i++){
+			for(size_t j=1; j<(N-1); j++){
+				double a = alpha(i,j);
+				double bx = beta_x(i,j);
+				double by = beta_y(i,j);
+				unew(i,j) = 0.5*((a+bx)*u(i+1,j) + (a-bx)*u(i-1,j) + (a+by)*u(i,j+1) + (a-by)*u(i,j-1) - 4.0*a*u(i,j));
+			}
+		}
+		unew = unew + u;
+		u_previous = u;
+		u = unew;
+	}else{
+		for(size_t i=1; i<(N-1); i++){
+			for(size_t j=1; j<(N-1); j++){
+				double a = alpha(i,j);
+				double bx = beta_x(i,j);
+				double by = beta_y(i,j);
+				unew(i,j) = (a+bx)*u(i+1,j) + (a-bx)*u(i-1,j) + (a+by)*u(i,j+1) + (a-by)*u(i,j-1) - 4.0*a*u(i,j);
+			}
+		}
+		unew = unew + 2.0*u - u_previous;
+		u_previous = u;
+		u = unew;
+	}
+}
 
+void Wave2d::iterate_test(size_t it){
+	for(size_t i=0; i<it; i++){
+		iterate_test_single();
+		t = t + dt;
+	}
+}
 
 //SUBCLASSES
 
