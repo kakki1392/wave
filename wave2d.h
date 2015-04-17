@@ -18,21 +18,26 @@ class Wave2d{
 		void createCustomInitial();
 		void createDefaultInitial();
 
-		void plot();
-
-		void print_dt_SI();
-		void print_dx_SI();
+		void print_alpha();
+		void print_beta_x();
+		void print_beta_y();
 		void print_x();
+		void print_y();
+
+		void plot();
 
 		void initialize();    //Initializes matrices and vectors 
 		void iterate(size_t it);       //Iterates the system through time
+		void ezIterate_single();
+		void ezIterate(size_t it);
+		void iterate_single();
 		void iterateForSeconds(double seconds);
 	private:
 		void fill_xy();	
 		void fill_alpha_beta();
 		double calc_alpha(size_t i, size_t j);
-		double calc_beta_x(size_t i; size_t j);
-		double calc_beta_y(size_t i; size_t j);
+		double calc_beta_x(size_t i, size_t j);
+		double calc_beta_y(size_t i, size_t j);
 
 		//SYSTEM PARAMETERS
 		double L;   //size of system
@@ -44,7 +49,6 @@ class Wave2d{
 		bool isAtInitial;
 
 		double t;   //current time of system
-		double c_0; //max size of c(x,y);
 		size_t N;   //Number of spatial points in [0,1]
 		double h;   //x=ih, i=0,....N-1, y=jh, j=0;....N-1
 		double dt;  //timestep
@@ -62,3 +66,16 @@ class Wave2d{
 
 };
 
+
+
+class ConstantWave: public Wave2d{
+	public:
+		ConstantWave();
+		~ConstantWave();
+		virtual double f(double & x, double & y);
+		virtual double f_x(double & x, double & y);
+		virtual double f_y(double & x, double & y);
+		virtual double u_initial(double & x, double & y);
+};
+
+#endif

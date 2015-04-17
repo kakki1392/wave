@@ -7,16 +7,28 @@ Wave2d::Wave2d(){
 	isAtInitial = true;
 	L = 1.0;
 	c_0 = 1.0;
-	tau = L/C;
+	tau = L/c_0;
 	t = 0.0;
 	N = 200;
-	dt = 0.0001;
+	//dt = 0.0001;
 	h = 1.0/((double) (N-1));
-	r = (dt*dt)/(h*h);
+	//r = (dt*dt)/(h*h);
+	r = 0.3;
+	dt = sqrt(r*h*h);
 
 	x = zeros<vec>(N);
 	y = zeros<vec>(N);
+	u = zeros<mat>(N,N);
+	u_previous = zeros<mat>(N,N);
+	alpha = zeros<mat>(N,N);
+	beta_x = zeros<mat>(N,N);
+	beta_y = zeros<mat>(N,N);
 	fill_xy();
+	createDefaultInitial();
+	gplt.cmd("set zrange [-0.4:4]");
+	gplt.cmd("set view 36,56");
+	gplt.cmd("set pm3d");
+	gplt.cmd("set palette defined (-1 'blue', 1 'red')");
 }
 
 Wave2d::~Wave2d(){
@@ -27,22 +39,22 @@ Wave2d::~Wave2d(){
 void Wave2d::createCustomInitial(){
 	for(size_t i = 0; i<N; i++){
 		for(size_t j = 0; j<N; j++){
-			u(i,j) = u_initial(x(i), y(i));
+			u(i,j) = u_initial(x(i), y(j));
 		}
 	}
 }
 
-void Wave2d::print_dt_SI(){
-	cout << dt*tau << endl;
-}
-
-void Wave2d::print_dx_SI(){
-	cout << dx*L << endl;
+void Wave2d::createDefaultInitial(){
+	for(size_t i = 1; i<(N-1); i++){
+		for(size_t j = 1; j<(N-1); j++){
+			u(i,j) = exp(-1000.0*((x(i)-0.5)*(x(i)-0.5) + (y(j)-0.5)*(y(j)-0.5)));
+		}
+	}
 }
 
 
 double Wave2d::calc_alpha(size_t i, size_t j){
-	double f_value = f(x(i), y(i));
+	double f_value = f(x(i), y(j));
 	return r*f_value*f_value;
 }
 
@@ -51,38 +63,75 @@ double Wave2d::calc_beta_x(size_t i, size_t j){
 }
 
 double Wave2d::calc_beta_y(size_t i, size_t j){
-	return r*h*f(x(i), y(i))*f_y(x(i),y(j));
+	return r*h*f(x(i), y(j))*f_y(x(i),y(j));
 }
 
 void Wave2d::fill_xy(){
 	for(size_t i = 0; i < N; i++){
-		x(i) = ((double) i) * dx;
+		x(i) = ((double) i) * h;
 	}
 	y = x;
 }
 
+void Wave2d::fill_alpha_beta(){
+	for(size_t i = 0; i<N; i++){
+		for(size_t j=0; j<N; j++){
+			alpha(i,j) = calc_alpha(i,j);
+			beta_x(i,j) = calc_beta_x(i,j);
+			beta_y(i,j) = calc_beta_y(i,j);
+		}
+	}
+}
+
+//Printing
+
+void Wave2d::print_alpha(){
+	alpha.print("alpha");
+}
+
+void Wave2d::print_beta_x(){
+	beta_x.print("beta_x");
+}
+
+void Wave2d::print_beta_y(){
+	beta_y.print("beta_y");
+}
+
+void Wave2d::print_x(){
+	x.print("x");
+}
+
+void Wave2d::print_y(){
+	y.print("y");
+}
+
 //PLOTTING
 void Wave2d::plot(){
-	gplt.xystream(N,x,u);
+	gplt.xyzstream(N,x,y,u);
 }
 
 void Wave2d::initialize(){
 	t = 0.0;
 	isAtInitial = true;
-	u = zeros<mat>(N,N);
-	u_previous = zeros<mat>(N,N);
 	fill_alpha_beta();
 }
 
 void Wave2d::iterate(size_t it){
+	for(size_t i=0; i<it; i++){
+		iterate_single();
+		t = t + dt;
+	}
+}
+
+void Wave2d::iterate_single(){
 	mat unew = zeros<mat>(N,N);
 	if(isAtInitial){
 		isAtInitial = false;
 		//Do corners
 		double a_LL = alpha(1,1);
-		double a_LR = alpha(N-1,1);
-		double a_UL = alpha(1,N-1);
-		double a_UR = alpha(N-1,N-1);
+		double a_LR = alpha(N-2,1);
+		double a_UL = alpha(1,N-2);
+		double a_UR = alpha(N-2,N-2);
 		
 		unew(1,1) = 0.5*((a_LL+beta_x(1,1))*u(2,1) + (a_LL+beta_y(1,1))*u(1,2) + (2.0+4.0*a_LL)*u(1,1));
 		unew(N-2,1) = 0.5*((a_LR-beta_x(N-2,1))*u(N-3,1) + (a_LR+beta_y(N-2,1))*u(N-2,2) + (2.0+4.0*a_LR)*u(N-2,1));
@@ -159,3 +208,61 @@ void Wave2d::iterate(size_t it){
 	}
 }
 
+void Wave2d::ezIterate_single(){
+	mat unew = zeros<mat>(N,N);
+	if(isAtInitial){
+		isAtInitial = false;
+		for(size_t i=1; i<(N-1); i++){
+			for(size_t j=1; j<(N-1); j++){
+				unew(i,j) = 0.5*r*(u(i+1,j)+u(i-1,j)+u(i,j+1)+u(i,j-1));
+			}
+		}
+		unew = unew - (1.0-2.0*r)*u;
+		u_previous = u;
+		u = unew;
+	}else{
+		for(size_t i=1; i<(N-1); i++){
+			for(size_t j=1; j<(N-1); j++){
+				unew(i,j) = r*(u(i+1,j)+u(i-1,j)+u(i,j+1)+u(i,j-1));
+			}
+		}
+		unew = unew - u_previous - (2.0-4.0*r)*u;
+		u_previous = u;
+		u = unew;
+	}
+}
+
+void Wave2d::ezIterate(size_t it){
+	for(size_t i=0; i<it; i++){
+		ezIterate_single();
+		t = t + dt;
+	}
+}
+
+
+
+//SUBCLASSES
+
+ConstantWave::ConstantWave(): Wave2d(){
+	createDefaultInitial();
+}
+
+ConstantWave::~ConstantWave(){
+
+}
+
+double ConstantWave::f(double & x, double & y){
+	return 1.0;
+}
+
+double ConstantWave::f_x(double & x, double & y){
+	return 0.0;
+}
+
+double ConstantWave::f_y(double & x, double & y){
+	return 0.0;
+}
+
+double ConstantWave::u_initial(double & x, double & y){
+	return 1.0;
+}
