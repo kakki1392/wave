@@ -9,7 +9,7 @@ Wave2d::Wave2d(){
 	c_0 = 1.0;
 	tau = L/c_0;
 	t = 0.0;
-	N = 6;
+	N = 100;
 	//dt = 0.0001;
 	h = 1.0/((double) (N-1));
 	//r = (dt*dt)/(h*h);
@@ -43,10 +43,7 @@ void Wave2d::createCustomInitial(){
 void Wave2d::createDefaultInitial(){
 	for(size_t i = 1; i<(N-1); i++){
 		for(size_t j = 1; j<(N-1); j++){
-			//u(i,j) = exp(-1000.0*((x(i)-0.5)*(x(i)-0.5) + (y(j)-0.5)*(y(j)-0.5)));
-			if(y(j) < 0.3){
-				u(i,j) = sin(M_PI*x(i))*sin(M_PI*y(j)/0.3);
-			}
+			u(i,j) = exp(-1000.0*((x(i)-0.5)*(x(i)-0.5) + (y(j)-0.5)*(y(j)-0.5)));
 		}
 	}
 }
@@ -113,8 +110,12 @@ void Wave2d::print_u_previous(){
 }
 
 //PLOTTING
-void Wave2d::plot(){
+void Wave2d::plot_2d(){
 	gplt.heatmap(N,N,u);
+}
+
+void Wave2d::plot_3d(){
+	gplt.xyzstream(N,x,y,u);
 }
 
 void Wave2d::initialize(){

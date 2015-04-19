@@ -28,7 +28,8 @@ class Wave2d{
 
 		Gnuplotting gplt;
 
-		void plot();
+		void plot_2d();
+		void plot_3d();
 
 		void initialize();    //Initializes matrices and vectors 
 		void iterate(size_t it);       //Iterates the system through time
